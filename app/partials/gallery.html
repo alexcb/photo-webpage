@@ -1,0 +1,10 @@
+<i class="fa fa-caret-left photo-selector" ng-click="prevImage()"></i>
+<span class="photo-selection">{{selected_image+1}} of {{images.length}}</span>
+<i class="fa fa-caret-right photo-selector" ng-click="nextImage()"></i>
+
+<div class="slide-container">
+	<div class="slide" ng-repeat="image in images" ng-show="isCurrentImage($index)">
+	    <img class="img-responsive fit_to_screen" ng-src="{{image.large}}" ng-click="nextImage()">
+	</div>
+</div>
+
