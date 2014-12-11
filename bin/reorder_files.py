@@ -14,7 +14,11 @@ def get_parser():
 
 
 def parse_int_prefix(x):
-    return int(re.search('(^[0-9]*)', x).group(0))
+    try:
+        return int(re.search('(^[0-9]*)', x).group(0))
+    except ValueError:
+        # Default photo to start of list if it isn't prefixed
+        return -1
 
 
 def get_insertion_index(sorted_files, new_prefix):
