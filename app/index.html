@@ -16,6 +16,7 @@
 
     <!-- build:css(app) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css" />
+    <link rel="stylesheet" href="styles/navbar.css" />
     <!-- endbuild -->
 
   </head>
@@ -25,15 +26,15 @@
     <![endif]-->
 
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="navbar navbar-default" role="navigation">
         <div class="container">
             <div class="navbar-header">
                 <span class="navbar-brand">Alex Couture-Beil</span>
             </div>
 
             <div class="">
-                <ul class="nav navbar-nav">
-                    <li ng-repeat="link in navLinks">
+                <ul class="nav navbar-nav navbar-right">
+                    <li ng-repeat="link in navLinks" ng-class="(isActiveRoute('/'+link.page)) ? 'active' : ''">
                         <a href="#/{{link.page}}">{{link.title}}</a>
                     </li>
                 </ul>
@@ -57,8 +58,8 @@
     <!-- endbuild -->
 
     <!-- build:js(app) scripts/main.js -->
-    <script src="scripts/main.js"></script>
     <script src="scripts/google_analytics.js"></script>
+    <script src="scripts/main.js"></script>
     <!-- endbuild -->
 
 </body>

@@ -17,12 +17,10 @@ function createCachedDataFunction($q, $http, resource_url) {
 	return function() {
 		var defered=$q.defer();
 		if( cached ) {
-			console.log('returned cached for ' + resource_url);
 			defered.resolve(cached_resource);
 		} else {
 			$http.get(resource_url).
 				success(function(data, status, headers, config) {
-					console.log('fetching ' + resource_url);
 					cached_resource=data;
 					cached = true;
 					defered.resolve(data)
@@ -98,7 +96,6 @@ function createGalleryControler(gallery_section) {
 _.each(nav_links, function(nav_link) {
 	var ctrl_name = nav_link.page + 'Ctrl';
 	var gallery_section = nav_link.page.toLowerCase();
-	console.log(ctrl_name);
 	app.controller(ctrl_name, ['$scope', '$rootScope', '$location', 'DataService',
 		createGalleryControler(gallery_section)]);
 });
@@ -132,8 +129,17 @@ app.config(['$routeProvider', 'navLinks', function($routeProvider, navLinks) {
 }]);
 
 
-app.run(['$rootScope', 'navLinks', function($rootScope, navLinks) {
+app.run(['$rootScope', '$location', 'navLinks', function($rootScope, $location, navLinks) {
 	$rootScope.navLinks = navLinks;
+	$rootScope.$on('$viewContentLoaded', function() {
+		var screenName = location.pathname + location.search + location.hash;
+		ga('send', 'screenview', {
+			'screenName': screenName
+		});
+	});
+	$rootScope.isActiveRoute = function(route) {
+		return route == $location.path();
+	};
 }]);
 
 
