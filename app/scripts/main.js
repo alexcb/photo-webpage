@@ -132,10 +132,8 @@ app.config(['$routeProvider', 'navLinks', function($routeProvider, navLinks) {
 app.run(['$rootScope', '$location', 'navLinks', function($rootScope, $location, navLinks) {
 	$rootScope.navLinks = navLinks;
 	$rootScope.$on('$viewContentLoaded', function() {
-		var screenName = location.pathname + location.search + location.hash;
-		ga('send', 'screenview', {
-			'screenName': screenName
-		});
+		var pageViewLocation = location.pathname + location.search + location.hash;
+		ga('send', 'pageview', pageViewLocation);
 	});
 	$rootScope.isActiveRoute = function(route) {
 		return route == $location.path();
