@@ -1,130 +1,10 @@
 #!/usr/bin/python
 import argparse
 import os
-import hashlib
-import shutil
-
-import Image
 
 import jinja2
 
-from run_tools.utils import mkdir_parents
-
-
-thumbnail_width = 300
-thumbnail_height = 300
-
-
-class Task(object):
-    def __init__(self):
-        pass
-
-    def get_dependencies(self):
-        return iter([])
-
-    def run(self):
-        pass
-
-
-class LambdaTask(Task):
-    def __init__(self, method):
-        self._method = method
-
-    def run(self):
-        self._method()
-
-
-class MakeThumb(Task):
-    def __init__(self, image_path, thumbnail_path):
-        self._input_path = image_path
-        self._output_path = thumbnail_path
-
-    def run(self):
-        im = Image.open(self._input_path)
-        current_width, current_height = im.size
-
-        resize_ratio_width = (current_width / float(thumbnail_width))
-        resize_ratio_height = (current_height / float(thumbnail_height))
-
-        resize_ratio = max(resize_ratio_width, resize_ratio_height)
-            
-        resize_width = int(current_width / resize_ratio)
-        resize_height = int(current_height / resize_ratio)
-
-        im.thumbnail((resize_width, resize_height), Image.ANTIALIAS)
-        im.save(self._output_path, "JPEG")
-
-
-def get_image_output_name(image_path):
-    hexdigest = hashlib.md5(open(image_path, 'rb').read()).hexdigest()
-    return 'alexcb_photo_mofo_ca_%s' % hexdigest
-
-
-class BuildGallery(Task):
-    def __init__(self, gallery_path, gallery_build_path, template_path):
-        self._gallery_build_path = gallery_build_path
-        self._gallery_path = gallery_path
-        self._template_path = template_path
-        self._photos = []
-        for x in os.listdir(gallery_path):
-            image_path = os.path.join(gallery_path, x)
-            output_name = get_image_output_name(image_path)
-            thumbnail = 'thumbnail_%s' % output_name
-            self._photos.append({
-                'thumbnail': thumbnail,
-                'input_path': image_path,
-                'output_path': os.path.join(gallery_build_path, output_name),
-                'thumbnail_path': os.path.join(gallery_build_path, thumbnail),
-                })
-
-    def get_dependencies(self):
-        yield LambdaTask(lambda: mkdir_parents(self._gallery_build_path))
-        for photo in self._photos:
-            yield LambdaTask(lambda: shutil.copyfile(photo['input_path'], photo['output_path']))
-            yield MakeThumb(photo['input_path'], photo['thumbnail_path'])
-
-    def run(self):
-        templateLoader = jinja2.FileSystemLoader(searchpath=self._template_path)
-        templateEnv = jinja2.Environment( loader=templateLoader )
-        template = templateEnv.get_template( 'gallery.jinja' )
-
-        with open(os.path.join(self._gallery_build_path, 'index.html'), 'w') as fp:
-            fp.write(template.render({
-                'photos': self._photos,
-                }))
-
-
-class BuildWebsite(Task):
-    def __init__(self, photos_path, template_path, build_dir):
-        self._photo_galleries = [
-            {
-                'gallery': x,
-                'path': os.path.join(photos_path, x),
-                'build_path': os.path.join(build_dir, x),
-                }
-            for x in os.listdir(photos_path)
-            ]
-        self._build_dir = build_dir
-        self._template_path = template_path
-
-    def get_dependencies(self):
-        yield LambdaTask(lambda: mkdir_parents(self._build_dir))
-        for gallery in self._photo_galleries:
-            yield BuildGallery(
-                gallery_path = gallery['path'],
-                gallery_build_path = gallery['build_path'],
-                template_path = self._template_path,
-                )
-
-    def run(self):
-        templateLoader = jinja2.FileSystemLoader(searchpath=self._template_path)
-        templateEnv = jinja2.Environment( loader=templateLoader )
-        template = templateEnv.get_template( 'index.jinja' )
-
-        with open(os.path.join(self._build_dir, 'index.html'), 'w') as fp:
-            fp.write(template.render({
-                'galleries': self._photo_galleries,
-                }))
+from run_tools.build_website import BuildWebsite
 
 
 def run_task(task):
@@ -136,8 +16,12 @@ def run_task(task):
 if __name__ == '__main__':
     root_dir = os.path.dirname(os.path.realpath(__file__))
     build_dir = os.path.join(root_dir, '_build')
+    static_dir = os.path.join(root_dir, 'static')
     photos_dir = os.path.join(root_dir, 'photos')
     template_dir = os.path.join(root_dir, 'templates')
 
-    run_task(BuildWebsite(photos_dir, template_dir, build_dir))
+    templateLoader = jinja2.FileSystemLoader(searchpath=template_dir)
+    template_env = jinja2.Environment(loader=templateLoader)
+
+    run_task(BuildWebsite(static_dir, photos_dir, build_dir, template_env))
 
