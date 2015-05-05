@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ description }}" />
+</head>
+
+<body>
+
+  {% for photo in photos %}
+  <img src="{{photo.thumbnail}}"/>
+  {% endfor %}
+
+</body>
+</html>
+
