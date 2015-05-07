@@ -20,70 +20,91 @@
 
   <div id="album">
   {% for photo in photos %}
-  <a title="Click image to enlarge" href="{{photo.url}}" class="photolink"><img width="549" data-width="549" height="366" data-height="366" src="{{photo.thumbnail}}"></a>
+  <a title="Click image to enlarge" href="{{photo.url}}" class="photolink"><img src="{{photo.thumbnail}}" alt="{{photo.title}}" data-width="{{photo.width}}" data-height="{{photo.height}}"></a>
   {% endfor %}
   </div>
 
     <script src="/static/jquery-1.7.2.min.js"></script>
     <script src="/static/jquery.magnific-popup.js"></script>  
     <script>
-      /* Derived from
-       * http://blog.vjeux.com/2012/image/image-layout-algorithm-google-plus.html
-       */
+      /* Inspired by http://blog.vjeux.com/2012/image/image-layout-algorithm-google-plus.html */
 
-      HEIGHTS = [];
+      var ALBUM_BORDER_WIDTH = 10;
+      var IMAGE_SPACING = 4;
 
-      function getheight(images, width) {
-        width -= images.length * 5;
-        var h = 0;
-        for (var i = 0; i < images.length; ++i) {
-          h += $(images[i]).data('width') / $(images[i]).data('height');
-        }
-        return width / h;
-      }
-
-      function setheight(images, height) {
-        HEIGHTS.push(height);
-        for (var i = 0; i < images.length; ++i) {
-          $(images[i]).css({
-            width: height * $(images[i]).data('width') / $(images[i]).data('height'),
-            height: height
+      function get_height_for_row(images, album_width)
+      {
+          var ratios = 0;
+          $.each(images, function(i, img) {
+              ratios += $(img).data('width') / $(img).data('height');
           });
-          $(images[i]).attr('src', $(images[i]).attr('src').replace(/w[0-9]+-h[0-9]+/, 'w' + $(images[i]).width() + '-h' + $(images[i]).height()));
-        }
+          var row_height = album_width / ratios;
+          return row_height;
       }
 
-      function resize(images, width) {
-        setheight(images, getheight(images, width));
+      function resize_row(images, album_width)
+      {
+          var row_height = get_height_for_row(images, album_width);
+          $.each(images, function(i, img) {
+              $(img).height(row_height);
+          });
+          return row_height;
       }
 
       function run(max_height) {
-        var size = $('#album').width() - 4;
-        var n = 0;
+        var album_width = $('#album').width() - 2;
         var images = $('#album img');
-        w: while (images.length > 0) {
-          for (var i = 1; i < images.length + 1; ++i) {
-            var slice = images.slice(0, i);
-            var h = getheight(slice, size);
-            if (h < max_height) {
-              setheight(slice, h);
-              n++;
-              images = images.slice(i);
-              continue w;
+
+        var row = [];
+        var current_row_width = 0;
+        var smallest_height_in_row = 0;
+        var smallest_row_height = 0;
+        $.each(images, function(i, img) {
+            var img_height = $(img).data('height');
+            var spacing_width = row.length * 5;
+            if( (current_row_width + spacing_width) > album_width ) {
+                var resized_height = resize_row(row, album_width - spacing_width);
+                if( smallest_row_height == 0 || resized_height < smallest_row_height) {
+                    smallest_row_height = resized_height;
+                }
+
+                row = [];
+                current_row_width = 0;
+                smallest_height_in_row = 0;
             }
-          }
-          setheight(slice, Math.min(max_height, h));
-          n++;
-          break;
-        }
+
+            if( smallest_height_in_row == 0 ) {
+                smallest_height_in_row = img_height;
+            } else if( img_height < smallest_height_in_row) {
+                var ratio_to_shrink = img_height / smallest_height_in_row;
+                current_row_width *= ratio_to_shrink;
+                smallest_height_in_row = img_height;
+            }
+
+            var ratio_to_shrink = img_height / smallest_height_in_row;
+
+            current_row_width += $(img).data('width') * ratio_to_shrink;
+            row.push(img)
+
+        });
+
+        var spacing_width = row.length * 5;
+        var row_height = Math.min.apply(Math, [
+            get_height_for_row(row, album_width - spacing_width),
+            smallest_height_in_row,
+            smallest_row_height
+            ]);
+        $.each(row, function(i, img) {
+            $(img).height(row_height);
+        });
+
       }
 
       function imageTitle(obj) {
         var img = obj.el.children('img');
         var title = img.attr('alt');
-		return title
-        //return title + ' <span class="download">( <a title="Click to download full-size image" href="' + obj.src + '" download>download</a> )</span>';
-}
+        return title;
+      }
 
       $(window).resize(function () { run(366); });
       $(function() {

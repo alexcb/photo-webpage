@@ -3,8 +3,8 @@ from run_tools.task import Task
 import Image
 
 
-thumbnail_width = 500
-thumbnail_height = 500
+thumbnail_width = 300
+thumbnail_height = 300
 
 
 class MakeThumb(Task):
