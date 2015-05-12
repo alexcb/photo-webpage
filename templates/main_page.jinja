@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <title>{{ title }}</title>
+  <title>Alex Couture-Beil Photography</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="/static/main.css">
-  <link rel="stylesheet" href="/static/magnific-popup.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/magnific-popup.css">
 </head>
-<body onload="resize_images()">
+<body>
 
   <div id="header">
     <h1>Alex Couture-Beil Photography</h1>
@@ -15,15 +15,15 @@
       {% for gallery in galleries %}
       <a href="{{gallery.url}}">{{gallery.name}}</a>
       {% endfor %}
-      <a href="/about">About</a>
-      <a href="/contact">Contact</a>
+      <a href="/about.html">About</a>
+      <a href="/contact.html">Contact</a>
     </p>
   </div>
 
   {% block content %}{% endblock %}
 
   <script src="/static/js/jquery-1.11.3.min.js"></script>
-  <script src="/static/jquery.magnific-popup.js"></script>  
+  <script src="/static/js/jquery.magnific-popup.js"></script>  
 
   {% block script %}{% endblock %}
 

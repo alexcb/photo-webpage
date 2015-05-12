@@ -1,31 +1,17 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <title>{{ title }}</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" type="text/css" href="/static/main.css">
-  <link rel="stylesheet" href="/static/magnific-popup.css">
-</head>
-<body>
-
-    <div id="header">
-      <h1><a href="/">root</a></h1>
-      <nav>
-        <a href="/">root</a>
-        <a href="/about.html">about</a>
-        <a href="mailto:email@address">email@address</a>
-      </nav>
-    </div>
+{% extends "main_page.jinja" %}
+{% block content %}
 
   <div id="album">
   {% for photo in photos %}
-  <a title="Click image to enlarge" href="{{photo.url}}" class="photolink"><img src="{{photo.thumbnail}}" alt="{{photo.title}}" data-width="{{photo.width}}" data-height="{{photo.height}}"></a>
+  <a title="Click image to enlarge" href="/photos/{{photo.url}}" class="photolink"><img src="/photos/{{photo.thumbnail}}" alt="{{photo.title}}" data-width="{{photo.width}}" data-height="{{photo.height}}"></a>
   {% endfor %}
   </div>
+{% endblock %}
 
-    <script src="/static/jquery-1.7.2.min.js"></script>
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
     <script src="/static/jquery.magnific-popup.js"></script>  
+
+{% block script %}
     <script>
       /* Inspired by http://blog.vjeux.com/2012/image/image-layout-algorithm-google-plus.html */
 
@@ -51,22 +37,21 @@
           return row_height;
       }
 
-      function run(max_height) {
-        var album_width = $('#album').width() - 2;
+      function resize_images() {
+		var max_height = 400;
+        var album_width = $('#album').width();
         var images = $('#album img');
 
         var row = [];
         var current_row_width = 0;
         var smallest_height_in_row = 0;
-        var smallest_row_height = 0;
+        var max_row_height = 0;
         $.each(images, function(i, img) {
             var img_height = $(img).data('height');
             var spacing_width = row.length * 5;
             if( (current_row_width + spacing_width) > album_width ) {
                 var resized_height = resize_row(row, album_width - spacing_width);
-                if( smallest_row_height == 0 || resized_height < smallest_row_height) {
-                    smallest_row_height = resized_height;
-                }
+                max_row_height = Math.max(max_row_height, resized_height);
 
                 row = [];
                 current_row_width = 0;
@@ -88,11 +73,14 @@
 
         });
 
+		if( max_row_height == 0 )
+			max_row_height = smallest_height_in_row;
+
         var spacing_width = row.length * 5;
         var row_height = Math.min.apply(Math, [
             get_height_for_row(row, album_width - spacing_width),
             smallest_height_in_row,
-            smallest_row_height
+            max_row_height
             ]);
         $.each(row, function(i, img) {
             $(img).height(row_height);
@@ -106,9 +94,15 @@
         return title;
       }
 
-      $(window).resize(function () { run(366); });
+      function getFilename(s) {
+        var index = s.lastIndexOf('/');
+        if( index == -1 ) return s;
+        return s.substring(index+1);
+      }
+
+      $(window).resize(function () { resize_images(); });
       $(function() {
-        run(366);
+        resize_images();
 
         $('#album').magnificPopup({
           delegate: 'a.photolink',
@@ -126,6 +120,15 @@
             titleSrc: imageTitle,
             cursor: 'justregularplease'
           },
+          callbacks: {
+            close: function () {
+                location.hash = '';
+                resize_images();
+            },
+            change: function (item) {
+                location.hash = '#!' + getFilename(item.el.attr('href'));
+            }
+          },
           mainClass: 'mfp-with-zoom',
           zoom: {
             enabled: true,
@@ -137,8 +140,30 @@
         }
         });
       });
-    </script>
 
-</body>
-</html>
+      function urlFromHash() {
+          if (location.hash.substr(0, 2) != '#!') {
+              return null;
+          }
+          // why not location.hash? => http://stackoverflow.com/q/4835784/298479
+          return location.href.split('#')[1].substr(1);
+      }
+
+      function detectPopupInUrl() {
+          var url = urlFromHash();
+          var mp = $.magnificPopup.instance;
+          var image_links = $('a.photolink')
+          $.each(image_links, function(i, image_link) {
+              if( getFilename(image_link.href) == url ) {
+                $(image_link).click();
+              }
+          });
+      }
+
+      $(function() {
+        $(document.body).attr('onload', 'resize_images(); detectPopupInUrl();');
+      });
+
+    </script>
+{% endblock %}
 

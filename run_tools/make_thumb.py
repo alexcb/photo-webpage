@@ -3,12 +3,10 @@ from run_tools.task import Task
 import Image
 
 
-thumbnail_width = 300
-thumbnail_height = 300
-
-
 class MakeThumb(Task):
-    def __init__(self, image_path, thumbnail_path):
+    def __init__(self, image_path, thumbnail_path, max_width, max_height):
+        self._max_width = max_width
+        self._max_height = max_height
         self._input_path = image_path
         self._output_path = thumbnail_path
 
@@ -16,8 +14,12 @@ class MakeThumb(Task):
         im = Image.open(self._input_path)
         current_width, current_height = im.size
 
-        resize_ratio_width = (current_width / float(thumbnail_width))
-        resize_ratio_height = (current_height / float(thumbnail_height))
+        resize_ratio_width = (current_width / float(self._max_width))
+        resize_ratio_height = (current_height / float(self._max_height))
+
+        if resize_ratio_height < 1.0 or resize_ratio_width < 1.0:
+            raise RuntimeError('Image %s smaller (%s x %s) than thumbnail size (%s x %s)' %
+                (self._input_path, current_width, current_height, self._max_width, self._max_height))
 
         resize_ratio = max(resize_ratio_width, resize_ratio_height)
             
