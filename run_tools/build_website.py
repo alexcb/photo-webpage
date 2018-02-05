@@ -25,7 +25,7 @@ class BuildWebsite(Task):
 
             self._photo_galleries.append({
                 'name': gallery_name,
-                'url': '/' + html_file_name,
+                'url': html_file_name,
                 'input_photos_dir': os.path.join(photos_path, gallery_name),
                 'output_photos_dir': os.path.join(build_dir, 'photos'),
                 'output_html_path': os.path.join(build_dir, html_file_name)

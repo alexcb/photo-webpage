@@ -35,12 +35,15 @@ def load_config(config_file):
 
 def serve():
     PORT = 8000
-    
+
+    class MyTCPServer(socketserver.TCPServer):
+        def server_bind(self):
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.socket.bind(self.server_address)
+
     Handler = http.server.SimpleHTTPRequestHandler
-    
-    httpd = socketserver.TCPServer(("", PORT), Handler)
-    httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    
+    httpd = MyTCPServer(("0.0.0.0", PORT), Handler)
+
     print("serving at port", PORT)
     httpd.serve_forever()
 

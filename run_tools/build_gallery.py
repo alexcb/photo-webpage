@@ -26,7 +26,7 @@ class BuildGallery(Task):
         self._thumbnails_to_make = []
         self._photos = []
 
-        for x in os.listdir(self._input_photos_dir):
+        for x in sorted(os.listdir(self._input_photos_dir)):
             image_path = os.path.join(self._input_photos_dir, x)
             output_name = get_image_output_name(image_path)
             thumbnail = 'thumbnail_%s' % output_name
