@@ -1,6 +1,6 @@
 from run_tools.task import Task
 
-import Image
+from PIL import Image
 
 
 class MakeThumb(Task):

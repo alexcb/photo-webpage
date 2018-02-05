@@ -3,7 +3,7 @@
 
   <div id="album">
   {% for photo in photos %}
-  <a title="Click image to enlarge" href="/photos/{{photo.url}}" class="photolink"><img src="/photos/{{photo.thumbnail}}" alt="{{photo.title}}" data-width="{{photo.width}}" data-height="{{photo.height}}"></a>
+  <a title="Click image to enlarge" href="photos/{{photo.url}}" class="photolink"><img src="photos/{{photo.thumbnail}}" alt="{{photo.title}}" data-width="{{photo.width}}" data-height="{{photo.height}}"></a>
   {% endfor %}
   </div>
 {% endblock %}

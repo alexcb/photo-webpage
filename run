@@ -1,4 +1,19 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+import argparse
+
+import http.server
+import socketserver
+import socket
+
+def get_args():
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('mode', choices=('build', 'serve'))
+    
+    return parser.parse_args()
+
+
+
+
 import argparse
 import os
 
@@ -18,8 +33,18 @@ def load_config(config_file):
     with open(config_file) as fp:
         return yaml.load(fp)
 
+def serve():
+    PORT = 8000
+    
+    Handler = http.server.SimpleHTTPRequestHandler
+    
+    httpd = socketserver.TCPServer(("", PORT), Handler)
+    httpd.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    
+    print("serving at port", PORT)
+    httpd.serve_forever()
 
-if __name__ == '__main__':
+def build():
     root_dir = os.path.dirname(os.path.realpath(__file__))
     config_path = os.path.join(root_dir, 'config.yaml')
     build_dir = os.path.join(root_dir, '_build')
@@ -34,3 +59,12 @@ if __name__ == '__main__':
 
     run_task(BuildWebsite(config, static_dir, photos_dir, build_dir, template_env))
 
+
+
+if __name__ == '__main__':
+    args = get_args()
+    commands = {
+        'build': build,
+        'serve': serve,
+        }
+    commands[args.mode]()

@@ -3,8 +3,5 @@ thumbnails:
   max_height: 400
 galleries:
   order:
-   - Selected Works
-   - Portrait
-   - Landscape
-   - Street
-  index: Selected Works
+   - Portraits
+  index: Portraits

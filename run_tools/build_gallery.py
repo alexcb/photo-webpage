@@ -2,7 +2,7 @@ import hashlib
 import shutil
 import os
 
-import Image
+from PIL import Image
 
 from run_tools.task import Task
 from run_tools.utils import LambdaTask, mkdir_parents
