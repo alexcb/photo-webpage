@@ -1,0 +1,169 @@
+{% extends "main_page.jinja" %}
+{% block content %}
+
+  <div id="album">
+  {% for photo in photos %}
+  <a title="Click image to enlarge" href="photos/{{photo.url}}" class="photolink"><img src="photos/{{photo.thumbnail}}" alt="{{photo.title}}" data-width="{{photo.width}}" data-height="{{photo.height}}"></a>
+  {% endfor %}
+  </div>
+{% endblock %}
+
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+    <script src="/static/jquery.magnific-popup.js"></script>  
+
+{% block script %}
+    <script>
+      /* Inspired by http://blog.vjeux.com/2012/image/image-layout-algorithm-google-plus.html */
+
+      var ALBUM_BORDER_WIDTH = 10;
+      var IMAGE_SPACING = 4;
+
+      function get_height_for_row(images, album_width)
+      {
+          var ratios = 0;
+          $.each(images, function(i, img) {
+              ratios += $(img).data('width') / $(img).data('height');
+          });
+          var row_height = album_width / ratios;
+          return row_height;
+      }
+
+      function resize_row(images, album_width)
+      {
+          var row_height = get_height_for_row(images, album_width);
+          $.each(images, function(i, img) {
+              $(img).height(row_height);
+          });
+          return row_height;
+      }
+
+      function resize_images() {
+		var max_height = 400;
+        var album_width = $('#album').width();
+        var images = $('#album img');
+
+        var row = [];
+        var current_row_width = 0;
+        var smallest_height_in_row = 0;
+        var max_row_height = 0;
+        $.each(images, function(i, img) {
+            var img_height = $(img).data('height');
+            var spacing_width = row.length * 5;
+            if( (current_row_width + spacing_width) > album_width ) {
+                var resized_height = resize_row(row, album_width - spacing_width);
+                max_row_height = Math.max(max_row_height, resized_height);
+
+                row = [];
+                current_row_width = 0;
+                smallest_height_in_row = 0;
+            }
+
+            if( smallest_height_in_row == 0 ) {
+                smallest_height_in_row = img_height;
+            } else if( img_height < smallest_height_in_row) {
+                var ratio_to_shrink = img_height / smallest_height_in_row;
+                current_row_width *= ratio_to_shrink;
+                smallest_height_in_row = img_height;
+            }
+
+            var ratio_to_shrink = img_height / smallest_height_in_row;
+
+            current_row_width += $(img).data('width') * ratio_to_shrink;
+            row.push(img)
+
+        });
+
+		if( max_row_height == 0 )
+			max_row_height = smallest_height_in_row;
+
+        var spacing_width = row.length * 5;
+        var row_height = Math.min.apply(Math, [
+            get_height_for_row(row, album_width - spacing_width),
+            smallest_height_in_row,
+            max_row_height
+            ]);
+        $.each(row, function(i, img) {
+            $(img).height(row_height);
+        });
+
+      }
+
+      function imageTitle(obj) {
+        var img = obj.el.children('img');
+        var title = img.attr('alt');
+        return title;
+      }
+
+      function getFilename(s) {
+        var index = s.lastIndexOf('/');
+        if( index == -1 ) return s;
+        return s.substring(index+1);
+      }
+
+      $(window).resize(function () { resize_images(); });
+      $(function() {
+        resize_images();
+
+        $('#album').magnificPopup({
+          delegate: 'a.photolink',
+          closeOnContentClick: true,
+          showCloseBtn: false,
+          type: 'image',
+          gallery: {
+            enabled: true,
+            preload: [1,3],
+            navigateByImgClick: false,
+            tCounter: ''
+          },
+
+          image: {
+            titleSrc: imageTitle,
+            cursor: 'justregularplease'
+          },
+          callbacks: {
+            close: function () {
+                location.hash = '';
+                resize_images();
+            },
+            change: function (item) {
+                location.hash = '#!' + getFilename(item.el.attr('href'));
+            }
+          },
+          mainClass: 'mfp-with-zoom',
+          zoom: {
+            enabled: true,
+            duration: 300,
+            easing: 'ease-in-out',
+            opener: function(openerElement) {
+              return openerElement.is('img') ? openerElement : openerElement.find('img');
+            }
+        }
+        });
+      });
+
+      function urlFromHash() {
+          if (location.hash.substr(0, 2) != '#!') {
+              return null;
+          }
+          // why not location.hash? => http://stackoverflow.com/q/4835784/298479
+          return location.href.split('#')[1].substr(1);
+      }
+
+      function detectPopupInUrl() {
+          var url = urlFromHash();
+          var mp = $.magnificPopup.instance;
+          var image_links = $('a.photolink')
+          $.each(image_links, function(i, image_link) {
+              if( getFilename(image_link.href) == url ) {
+                $(image_link).click();
+              }
+          });
+      }
+
+      $(function() {
+        $(document.body).attr('onload', 'resize_images(); detectPopupInUrl();');
+      });
+
+    </script>
+{% endblock %}
+

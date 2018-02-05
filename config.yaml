@@ -1,0 +1,7 @@
+thumbnails:
+  max_width: 400
+  max_height: 400
+galleries:
+  order:
+   - Portraits
+  index: Portraits

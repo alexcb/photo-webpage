@@ -3,3 +3,4 @@ dist
 .tmp
 bower_components
 upload_dist_to_ftp.sh
+*.pyc
