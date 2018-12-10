@@ -32,6 +32,7 @@ def run_task(task, hash_cache):
 
     print('running ' + task.name())
     task.run()
+    output_hash = task.output_digest()
 
     if input_hash and output_hash:
         hash_cache[input_hash] = output_hash
