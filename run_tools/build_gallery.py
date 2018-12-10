@@ -5,7 +5,7 @@ import os
 from PIL import Image
 
 from run_tools.task import Task
-from run_tools.utils import LambdaTask, mkdir_parents
+from run_tools.utils import MkdirTask
 from run_tools.make_thumb import MakeThumb
 from run_tools.make_image import MakeImage
 
@@ -48,8 +48,11 @@ class BuildGallery(Task):
                 'fullsize': output_name,
                 })
 
+    def name(self):
+        return 'BuildGallery ' + self._input_photos_dir
+
     def get_dependencies(self):
-        yield LambdaTask(lambda: mkdir_parents(self._output_photos_dir))
+        yield MkdirTask(self._output_photos_dir)
         for thumbnail in self._thumbnails_to_make:
             yield MakeThumb(
                 thumbnail['input_path'],

@@ -1,9 +1,16 @@
 #!/usr/bin/python3
 import argparse
-
 import http.server
-import socketserver
+import jinja2
+import json
+import os
+import re
 import socket
+import socketserver
+import yaml
+
+from run_tools.build_website import BuildWebsite
+
 
 def get_args():
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -12,27 +19,37 @@ def get_args():
     return parser.parse_args()
 
 
-
-
-import argparse
-import os
-import re
-
-import jinja2
-import yaml
-
-from run_tools.build_website import BuildWebsite
-
-
-def run_task(task):
+def run_task(task, hash_cache):
     for dep_task in task.get_dependencies():
-        run_task(dep_task)
+        run_task(dep_task, hash_cache)
+
+    input_hash = task.input_digest()
+    output_hash = task.output_digest()
+    if input_hash and output_hash:
+        if hash_cache.get(input_hash) == output_hash:
+            print('skipping ' + task.name())
+            return
+
+    print('running ' + task.name())
     task.run()
+
+    if input_hash and output_hash:
+        hash_cache[input_hash] = output_hash
 
 
 def load_config(config_file):
     with open(config_file) as fp:
         return yaml.load(fp)
+
+def load_hash_cache(path):
+    try:
+        return json.loads(open(path, 'rb').read().decode('utf8'))
+    except FileNotFoundError:
+        return {}
+
+def save_hash_cache(cache, path):
+    open(path, 'wb').write(json.dumps(cache).encode('utf8'))
+
 
 def serve():
     PORT = 8000
@@ -61,7 +78,9 @@ def build():
     templateLoader = jinja2.FileSystemLoader(searchpath=template_dir)
     template_env = jinja2.Environment(loader=templateLoader)
 
-    run_task(BuildWebsite(config, static_dir, photos_dir, build_dir, template_env))
+    hash_cache = load_hash_cache('.hash_cache')
+    run_task(BuildWebsite(config, static_dir, photos_dir, build_dir, template_env), hash_cache)
+    save_hash_cache(hash_cache, '.hash_cache')
 
 def reorder():
     def rename_next(parent, f):

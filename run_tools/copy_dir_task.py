@@ -9,6 +9,9 @@ class CopyDirTask(Task):
         self._src = src
         self._dst = dst
 
+    def name(self):
+        return 'copy ' + self._src + ' ' + self._dst
+
     def run(self):
         if os.path.exists(self._dst):
             shutil.rmtree(self._dst)

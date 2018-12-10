@@ -1,4 +1,5 @@
 from run_tools.task import Task
+from run_tools.hash import Hasher
 
 from PIL import Image
 
@@ -9,6 +10,21 @@ class MakeThumb(Task):
         self._max_height = max_height
         self._input_path = image_path
         self._output_path = thumbnail_path
+
+    def input_digest(self):
+        return Hasher().add(
+                self.__class__.__name__,
+                str(self._max_width),
+                str(self._max_height),
+            ).add_file(
+                self._input_path,
+            ).digest()
+
+    def output_digest(self):
+        return Hasher().add_file(self._output_path).digest()
+
+    def name(self):
+        return self.__class__.__name__ + ' ' + self._input_path + ' -> ' + self._output_path
 
     def run(self):
         im = Image.open(self._input_path)

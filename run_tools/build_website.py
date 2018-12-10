@@ -2,7 +2,7 @@ import os
 import shutil
 
 from run_tools.task import Task
-from run_tools.utils import LambdaTask, mkdir_parents
+from run_tools.utils import MkdirTask
 from run_tools.build_gallery import BuildGallery
 from run_tools.build_page import BuildPage
 from run_tools.copy_dir_task import CopyDirTask
@@ -31,8 +31,11 @@ class BuildWebsite(Task):
                 'output_html_path': os.path.join(build_dir, html_file_name)
                 })
 
+    def name(self):
+        return 'BuildWebsite'
+
     def get_dependencies(self):
-        yield LambdaTask(lambda: mkdir_parents(self._build_dir))
+        yield MkdirTask(self._build_dir)
         yield CopyDirTask(self._static_path, os.path.join(self._build_dir, 'static'))
 
         gallery_order = self._config['galleries']['order']

@@ -8,6 +8,9 @@ class BuildPage(Task):
         self._template_env = template_env
         self._output_path = output_path
 
+    def name(self):
+        return 'BuildPage ' + self._template
+
     def run(self):
         template = self._template_env.get_template( self._template )
         with open(self._output_path, 'w') as fp:
