@@ -1,6 +1,9 @@
 thumbnails:
   max_width: 400
   max_height: 400
+images:
+  max_width: 2000
+  max_height: 2000
 galleries:
   order:
    - Portraits

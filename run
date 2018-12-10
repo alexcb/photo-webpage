@@ -7,7 +7,7 @@ import socket
 
 def get_args():
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('mode', choices=('build', 'serve'))
+    parser.add_argument('mode', choices=('build', 'serve', 'reorder'))
     
     return parser.parse_args()
 
@@ -16,6 +16,7 @@ def get_args():
 
 import argparse
 import os
+import re
 
 import jinja2
 import yaml
@@ -62,6 +63,54 @@ def build():
 
     run_task(BuildWebsite(config, static_dir, photos_dir, build_dir, template_env))
 
+def reorder():
+    def rename_next(parent, f):
+        i = 1
+        while 1:
+            path = os.path.join(parent, f)
+            newpath = os.path.join(parent, '%02d.jpg' % i)
+            if not os.path.exists(newpath):
+                print('renaming %s to %s' % (path, newpath))
+                os.rename(path, newpath)
+                return
+            i += 1
+
+    def rename_lower(parent, f):
+        assert re.match('^[0-9]+.jpg$', f)
+        i = 1
+        while 1:
+            path = os.path.join(parent, f)
+            newpath = os.path.join(parent, '%02d.jpg' % i)
+            if path == newpath:
+                return
+            if not os.path.exists(newpath):
+                print('renaming %s to %s' % (path, newpath))
+                os.rename(path, newpath)
+                return
+            i += 1
+
+    root_dir = os.path.dirname(os.path.realpath(__file__))
+    photos_dir = os.path.join(root_dir, 'photos')
+    for x in os.listdir(photos_dir):
+        parent = os.path.join(photos_dir, x)
+        for f in sorted(os.listdir(parent)):
+            if re.match('^[0-9]+.jpg$', f):
+                rename_lower(parent, f)
+                continue
+            rename_next(parent, f)
+
+        for i, f in enumerate(sorted(os.listdir(parent))):
+            i += 1
+            path = os.path.join(parent, f)
+            newpath = os.path.join(parent, '%02d.jpg' % i)
+            if path != newpath:
+                print('renaming %s to %s' % (path, newpath))
+                assert not os.path.exists(newpath)
+                os.rename(path, newpath)
+
+
+
+
 
 
 if __name__ == '__main__':
@@ -69,5 +118,6 @@ if __name__ == '__main__':
     commands = {
         'build': build,
         'serve': serve,
+        'reorder': reorder,
         }
     commands[args.mode]()

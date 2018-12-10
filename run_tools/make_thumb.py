@@ -22,7 +22,7 @@ class MakeThumb(Task):
                 (self._input_path, current_width, current_height, self._max_width, self._max_height))
 
         resize_ratio = max(resize_ratio_width, resize_ratio_height)
-            
+  
         resize_width = int(current_width / resize_ratio)
         resize_height = int(current_height / resize_ratio)
 

@@ -7,6 +7,7 @@ from PIL import Image
 from run_tools.task import Task
 from run_tools.utils import LambdaTask, mkdir_parents
 from run_tools.make_thumb import MakeThumb
+from run_tools.make_image import MakeImage
 
 
 def get_image_output_name(image_path):
@@ -24,15 +25,21 @@ class BuildGallery(Task):
         self._template_env = template_env
 
         self._thumbnails_to_make = []
+        self._images_to_make = []
         self._photos = []
 
-        for x in sorted(os.listdir(self._input_photos_dir)):
+        for x in reversed(sorted(os.listdir(self._input_photos_dir))):
             image_path = os.path.join(self._input_photos_dir, x)
             output_name = get_image_output_name(image_path)
             thumbnail = 'thumbnail_%s' % output_name
             self._thumbnails_to_make.append({
                 'input_path': image_path,
                 'output_path': os.path.join(self._output_photos_dir, thumbnail),
+                })
+
+            self._images_to_make.append({
+                'input_path': image_path,
+                'output_path': os.path.join(self._output_photos_dir, output_name),
                 })
 
             self._photos.append({
@@ -50,12 +57,19 @@ class BuildGallery(Task):
                 max_width = self._config['thumbnails']['max_width'],
                 max_height = self._config['thumbnails']['max_height'],
                 )
+        for img in self._images_to_make:
+            yield MakeImage(
+                img['input_path'],
+                img['output_path'],
+                max_width = self._config['images']['max_width'],
+                max_height = self._config['images']['max_height'],
+                )
 
-        for photo in self._photos:
-            yield LambdaTask(lambda: shutil.copyfile(
-                src=photo['input_path'],
-                dst=os.path.join(self._output_photos_dir, photo['fullsize']),
-                ))
+        #for photo in self._photos:
+        #    yield LambdaTask(lambda: shutil.copyfile(
+        #        src=photo['input_path'],
+        #        dst=os.path.join(self._output_photos_dir, photo['fullsize']),
+        #        ))
 
     def _get_image_dimension(self, image_name):
         im = Image.open(os.path.join(self._output_photos_dir, image_name))
