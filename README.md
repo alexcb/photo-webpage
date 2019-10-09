@@ -1,8 +1,8 @@
 usage:
 
-    docker run --rm -ti -v `pwd`:/code -w /code photoweb ./run build
+    docker run --network=host --rm -ti -v `pwd`:/code -w /code photoweb ./run build
 
-    docker run --rm -ti -v `pwd`:/code -w /code photoweb ./run serve
+    docker run --network=host --rm -ti -v `pwd`:/code -w /code photoweb ./run serve
 
 Deps: 
 
