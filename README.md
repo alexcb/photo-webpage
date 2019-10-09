@@ -1,10 +1,13 @@
 usage:
 
-    ./run build && ./run serve
+    docker run --rm -ti -v `pwd`:/code -w /code photoweb ./run build
+
+    docker run --rm -ti -v `pwd`:/code -w /code photoweb ./run serve
 
 Deps: 
 
-    pip install image
+    docker
+    ./docker/build.sh
 
 Upload:
 
