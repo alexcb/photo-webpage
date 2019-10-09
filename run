@@ -53,12 +53,17 @@ def save_hash_cache(cache, path):
 
 
 def serve():
+    build()
+
     PORT = 8000
 
     class MyTCPServer(socketserver.TCPServer):
         def server_bind(self):
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.socket.bind(self.server_address)
+
+    web_dir = os.path.join(os.path.dirname(__file__), '_build')
+    os.chdir(web_dir)
 
     Handler = http.server.SimpleHTTPRequestHandler
     httpd = MyTCPServer(("0.0.0.0", PORT), Handler)
