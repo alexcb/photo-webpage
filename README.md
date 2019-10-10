@@ -1,14 +1,11 @@
 usage:
 
-    docker run --network=host --rm -ti -v `pwd`:/code -w /code photoweb ./run build
-
-    docker run --network=host --rm -ti -v `pwd`:/code -w /code photoweb ./run serve
+    ./build-and-run.sh
 
 Deps: 
 
     docker
-    ./docker/build.sh
 
 Upload:
 
-    scp -r _build/* root@photo.mofo.ca:/var/www/photo_mofo_ca/.
+    scp -r _build/* username@photo.mofo.ca:/var/www/photo_mofo_ca/.
