@@ -1,6 +1,7 @@
 import hashlib
 import shutil
 import os
+import yaml
 
 from PIL import Image
 
@@ -13,6 +14,13 @@ from run_tools.make_image import MakeImage
 def get_image_output_name(image_path):
     hexdigest = hashlib.md5(open(image_path, 'rb').read()).hexdigest()
     return 'alexcb_photo_mofo_ca_%s.jpg' % hexdigest
+
+def get_meta(path):
+    if not os.path.exists(path):
+        return {}
+    with open(path) as fp:
+        print(path)
+        return yaml.load(fp)
 
 
 class BuildGallery(Task):
@@ -28,7 +36,10 @@ class BuildGallery(Task):
         self._images_to_make = []
         self._photos = []
 
-        for x in reversed(sorted(os.listdir(self._input_photos_dir))):
+        meta = get_meta(os.path.join(self._input_photos_dir, 'meta.yaml'))
+
+
+        for x in reversed(sorted(x for x in os.listdir(self._input_photos_dir) if x.endswith('jpg'))):
             image_path = os.path.join(self._input_photos_dir, x)
             output_name = get_image_output_name(image_path)
             thumbnail = 'thumbnail_%s' % output_name
@@ -46,6 +57,7 @@ class BuildGallery(Task):
                 'input_path': image_path,
                 'thumbnail': thumbnail,
                 'fullsize': output_name,
+                'title': meta.get(x, 'untitled'),
                 })
 
     def name(self):
@@ -92,7 +104,7 @@ class BuildGallery(Task):
                 'thumbnail': photo['thumbnail'],
                 'width': image_width,
                 'height': image_height,
-                'title': 'Photo (%s of %s)' % (i+1, total_photos)
+                'title': photo['title'],
                 })
 
         with open(self._output_html_path, 'w') as fp:

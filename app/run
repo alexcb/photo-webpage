@@ -14,6 +14,7 @@ from run_tools.build_website import BuildWebsite
 
 def get_args():
     parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--root-dir', help='webpage root directory')
     parser.add_argument('mode', choices=('build', 'serve', 'reorder'))
     
     return parser.parse_args()
@@ -52,8 +53,8 @@ def save_hash_cache(cache, path):
     open(path, 'wb').write(json.dumps(cache).encode('utf8'))
 
 
-def serve():
-    build()
+def serve(root_dir):
+    build(root_dir)
 
     PORT = 8000
 
@@ -62,7 +63,7 @@ def serve():
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.socket.bind(self.server_address)
 
-    web_dir = os.path.join(os.path.dirname(__file__), '_build')
+    web_dir = os.path.join(root_dir, '_build')
     os.chdir(web_dir)
 
     Handler = http.server.SimpleHTTPRequestHandler
@@ -71,8 +72,7 @@ def serve():
     print("serving at port", PORT)
     httpd.serve_forever()
 
-def build():
-    root_dir = os.path.dirname(os.path.realpath(__file__))
+def build(root_dir):
     config_path = os.path.join(root_dir, 'config.yaml')
     build_dir = os.path.join(root_dir, '_build')
     static_dir = os.path.join(root_dir, 'static')
@@ -88,7 +88,7 @@ def build():
     run_task(BuildWebsite(config, static_dir, photos_dir, build_dir, template_env), hash_cache)
     save_hash_cache(hash_cache, '.hash_cache')
 
-def reorder():
+def reorder(root_dir):
     def rename_next(parent, f):
         i = 1
         while 1:
@@ -114,7 +114,6 @@ def reorder():
                 return
             i += 1
 
-    root_dir = os.path.dirname(os.path.realpath(__file__))
     photos_dir = os.path.join(root_dir, 'photos')
     for x in os.listdir(photos_dir):
         parent = os.path.join(photos_dir, x)
@@ -140,9 +139,13 @@ def reorder():
 
 if __name__ == '__main__':
     args = get_args()
+    if args.root_dir:
+        root_dir = args.root_dir
+    else:
+        root_dir = os.getcwd()
     commands = {
         'build': build,
         'serve': serve,
         'reorder': reorder,
         }
-    commands[args.mode]()
+    commands[args.mode](root_dir)

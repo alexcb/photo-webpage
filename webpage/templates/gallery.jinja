@@ -100,6 +100,20 @@
         return s.substring(index+1);
       }
 
+      function showOrHideArrows(mfp) {
+        if(mfp.index <= 0 ) {
+           $(".mfp-arrow-left").hide();
+        } else {
+           $(".mfp-arrow-left").show();
+        }
+
+        if(mfp.index < mfp.items.length - 1) {
+          $(".mfp-arrow-right").show();
+        } else {
+          $(".mfp-arrow-right").hide();
+        }
+      }
+
       $(window).resize(function () { resize_images(); });
       $(function() {
         resize_images();
@@ -121,6 +135,35 @@
             cursor: 'justregularplease'
           },
           callbacks: {
+            open: function() {
+              var mfp = $.magnificPopup.instance;
+              var proto = $.magnificPopup.proto;
+
+              // override next to prevent cycling
+              mfp.next = function() {
+                // if index is not last, call parent method
+                if(mfp.index < mfp.items.length - 1) {
+                    proto.next.call(mfp);
+                } else {
+                   // otherwise do whatever you want, e.g. hide "next" arrow
+                }
+                showOrHideArrows(mfp);
+              };
+
+              // override prev to prevent cycling
+              mfp.prev = function() {
+                if(mfp.index <= 1 ) {
+                   $(".mfp-arrow-left").hide();
+                } else {
+                   $(".mfp-arrow-left").show();
+                }
+
+                if(mfp.index > 0) {
+                  proto.prev.call(mfp);
+                }
+                showOrHideArrows(mfp);
+              };
+            },
             close: function () {
                 location.hash = '';
                 resize_images();
