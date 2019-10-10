@@ -15,7 +15,11 @@ class BuildWebsite(Task):
         self._template_env = template_env
         self._build_dir = build_dir
 
-        index_gallery = self._config['galleries']['index']
+        try:
+            index_gallery = self._config['galleries']['index']
+        except:
+            index_gallery = config['galleries']['order'][0]
+
         self._photo_galleries = []
         for gallery_name in config['galleries']['order']:
             if index_gallery == gallery_name:
