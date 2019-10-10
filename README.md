@@ -8,4 +8,4 @@ Deps:
 
 Upload:
 
-    scp -r _build/* username@photo.mofo.ca:/var/www/photo_mofo_ca/.
+    scp -r webpage/_build/* username@photo.mofo.ca:/var/www/photo_mofo_ca/.

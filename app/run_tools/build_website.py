@@ -58,12 +58,13 @@ class BuildWebsite(Task):
                 ('about.jinja', 'about.html'),
                 ('contact.jinja', 'contact.html'),
                 ):
-            yield BuildPage(
-                template = template,
-                output_path = os.path.join(self._build_dir, output_filename),
-                gallery_links = gallery_links,
-                template_env = self._template_env,
-                )
+            if os.path.exists(template):
+                yield BuildPage(
+                    template = template,
+                    output_path = os.path.join(self._build_dir, output_filename),
+                    gallery_links = gallery_links,
+                    template_env = self._template_env,
+                    )
 
     def run(self):
         pass
