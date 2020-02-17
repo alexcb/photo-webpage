@@ -4,6 +4,9 @@ thumbnails:
 images:
   max_width: 2000
   max_height: 2000
+blog:
+  max_width: 600
+  max_height: 900
 image_prefix: alexcb_photo_mofo_ca_
 galleries:
   order:

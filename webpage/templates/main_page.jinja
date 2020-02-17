@@ -13,10 +13,11 @@
     <h1>Alex Couture-Beil Photography</h1>
     <p>
       {% for gallery in galleries %}
-      <a href="{{gallery.url}}">{{gallery.name}}</a>
+      <a href="/{{gallery.url}}">{{gallery.name}}</a>
       {% endfor %}
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
+      <a href="/about.html">About</a>
+      <a href="/blog/index.html">Blog</a>
+      <a href="/contact.html">Contact</a>
     </p>
   </div>
 

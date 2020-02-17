@@ -136,3 +136,31 @@ body, html {
 		margin-left: 320px;
 	}
 }
+
+/*******************
+* Blog
+********************/
+div.blog {
+  text-align: center;
+}
+
+div.blog>a {
+  text-decoration: none;
+  color: #907070;
+}
+
+div.blog>h3 {
+  margin-bottom: 0px;
+  padding-bottom: 0px;
+  letter-spacing: 0.1em;
+  font-size: 2.0em;
+  font-weight: 500;
+}
+
+@media (min-width: 800px) {
+	div.blog>p {
+		width: 780px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+}

@@ -11,7 +11,6 @@ import yaml
 
 from run_tools.build_website import BuildWebsite
 
-
 def get_args():
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--root-dir', help='webpage root directory')
@@ -77,6 +76,7 @@ def build(root_dir):
     build_dir = os.path.join(root_dir, '_build')
     static_dir = os.path.join(root_dir, 'static')
     photos_dir = os.path.join(root_dir, 'photos')
+    blog_dir = os.path.join(root_dir, 'blog')
     template_dir = os.path.join(root_dir, 'templates')
 
     config = load_config(config_path)
@@ -85,7 +85,7 @@ def build(root_dir):
     template_env = jinja2.Environment(loader=templateLoader)
 
     hash_cache = load_hash_cache('.hash_cache')
-    run_task(BuildWebsite(config, static_dir, photos_dir, build_dir, template_env), hash_cache)
+    run_task(BuildWebsite(config, static_dir, photos_dir, blog_dir, build_dir, template_env), hash_cache)
     save_hash_cache(hash_cache, '.hash_cache')
 
 def reorder(root_dir):

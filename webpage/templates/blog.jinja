@@ -1,0 +1,17 @@
+{% extends "main_page.jinja" %}
+{% block content %}
+<div id="container">
+
+<div class="blog">
+{% for post in blog_posts %}
+<a href="{{post.url}}"><img src="{{post.img}}"><br/>{{post.title}}<br/>{{post.date}}</a>
+{% endfor %}
+</div>
+
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+    <script src="/static/js/resize_blog.js"></script>
+
+</div>
+{% endblock %}
+
+

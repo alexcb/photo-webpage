@@ -3,17 +3,20 @@ import shutil
 
 from run_tools.task import Task
 from run_tools.utils import MkdirTask
+from run_tools.build_blog import BuildBlog
 from run_tools.build_gallery import BuildGallery
 from run_tools.build_page import BuildPage
 from run_tools.copy_dir_task import CopyDirTask
 
 
 class BuildWebsite(Task):
-    def __init__(self, config, static_path, photos_path, build_dir, template_env):
+    def __init__(self, config, static_path, photos_path, blog_dir, build_dir, template_env):
         self._config = config
         self._static_path = static_path
         self._template_env = template_env
         self._build_dir = build_dir
+        self._blog_dir = blog_dir
+        self._blog_output_dir = os.path.join(build_dir, 'blog')
 
         try:
             index_gallery = self._config['galleries']['index']
@@ -62,13 +65,14 @@ class BuildWebsite(Task):
                 ('about.jinja', 'about.html'),
                 ('contact.jinja', 'contact.html'),
                 ):
-            if os.path.exists(template):
-                yield BuildPage(
-                    template = template,
-                    output_path = os.path.join(self._build_dir, output_filename),
-                    gallery_links = gallery_links,
-                    template_env = self._template_env,
-                    )
+            yield BuildPage(
+                template = template,
+                output_path = os.path.join(self._build_dir, output_filename),
+                gallery_links = gallery_links,
+                template_env = self._template_env,
+                )
+
+        yield BuildBlog(self._config, gallery_links, self._blog_dir, self._template_env, self._blog_output_dir)
 
     def run(self):
         pass
