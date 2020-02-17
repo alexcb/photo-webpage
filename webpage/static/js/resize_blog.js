@@ -6,14 +6,19 @@ function resize_images() {
 
   var images = $('div.blog img');
   $.each(images, function(i, img) {
-    if( !(img.url in orig_widths) ) {
-      orig_widths[img.url] = img.width;
+    var iw = img.width;
+    if( iw > 0 ) {
+      if( !(img.url in orig_widths) ) {
+        orig_widths[img.url] = img.width;
+      }
+      iw = orig_widths[img.url];
+      if( img.width >= max_width || iw > max_width ) {
+        iw = max_width;
+      }
+      if( iw > 0 ) {
+        $(img).css({'width' : iw + 'px'});
+      }
     }
-    var iw = orig_widths[img.url];
-    if( img.width >= max_width || iw > max_width ) {
-      iw = max_width;
-    }
-    $(img).css({'width' : iw + 'px'});
   });
 }
 
@@ -22,3 +27,4 @@ $(function() {
   resize_images();
 });
 
+$("img").one("load", resize_images );
