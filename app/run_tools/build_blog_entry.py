@@ -31,12 +31,12 @@ class BuildBlogEntry(Task):
 
     def create_html(self, text):
         html = []
+        images = re.findall(r'[a-zA-Z0-9_]+\.jpg', text)
+        for img in images:
+            hashed_url = self.image_mapping[os.path.join(self.blog_entry_name, img)]
+            text = text.replace(img, f'<img src="{hashed_url}" />')
+
         for l in text.split('\n'):
-            if l.endswith('.jpg'):
-                assert ' ' not in l
-                img = os.path.join(self.blog_entry_name, l)
-                img = self.image_mapping[img]
-                l = f'<img src="{img}" />'
             html.append(f'<p>{l}</p>')
         return ''.join(html)
 

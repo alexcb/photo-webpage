@@ -149,6 +149,10 @@ div.blog>a {
   color: #907070;
 }
 
+div.blog-entry {
+  margin-bottom: 50px;
+}
+
 div.blog>h3 {
   margin-bottom: 0px;
   padding-bottom: 0px;
