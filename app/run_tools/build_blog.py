@@ -80,8 +80,6 @@ class BuildBlog(Task):
         for x in self._blog_entries_to_make:
             info_path = os.path.join(self._blog_input, x, 'info.yml')
             rel_img = os.path.join(x, 'title.jpg')
-            print(rel_img)
-            print(self._image_map)
             title_img = self._image_map[rel_img]
 
             date = self.get_date(x)

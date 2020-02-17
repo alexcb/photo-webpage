@@ -17,4 +17,3 @@ class BuildPage(Task):
             fp.write(template.render({
                 'galleries': self._gallery_links,
                 }))
-        print(self._output_path)
