@@ -31,9 +31,14 @@ class BuildBlogEntry(Task):
 
     def create_html(self, text):
         html = []
-        images = re.findall(r'[a-zA-Z0-9_]+\.jpg', text)
+        images = re.findall(r'[a-zA-Z0-9_\-]+\.jpg', text)
         for img in images:
-            hashed_url = self.image_mapping[os.path.join(self.blog_entry_name, img)]
+            key = os.path.join(self.blog_entry_name, img)
+            try:
+                hashed_url = self.image_mapping[key]
+            except KeyError:
+                raise RuntimeError(f'Failed to find {key} in {self.image_mapping.keys()}')
+
             text = text.replace(img, f'<img src="{hashed_url}" />')
 
         for l in text.split('\n'):

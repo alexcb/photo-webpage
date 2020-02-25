@@ -7,6 +7,7 @@ from run_tools.build_blog import BuildBlog
 from run_tools.build_gallery import BuildGallery
 from run_tools.build_page import BuildPage
 from run_tools.copy_dir_task import CopyDirTask
+from run_tools.copy_task import CopyTask
 
 
 class BuildWebsite(Task):
@@ -44,6 +45,7 @@ class BuildWebsite(Task):
     def get_dependencies(self):
         yield MkdirTask(self._build_dir)
         yield CopyDirTask(self._static_path, os.path.join(self._build_dir, 'static'))
+        yield CopyTask(os.path.join(self._static_path, 'favicon.ico'), os.path.join(self._build_dir, 'favicon.ico'))
 
         gallery_order = self._config['galleries']['order']
         gallery_links = [{
