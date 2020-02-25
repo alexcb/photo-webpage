@@ -1,6 +1,6 @@
 var orig_widths = {};
 function resize_images() {
-  console.log('hello');
+  //console.log('hello');
 
   var max_width = $('#container').width();
 
@@ -28,3 +28,5 @@ $(function() {
 });
 
 $("img").one("load", resize_images );
+setInterval(resize_images, 2500);
+
