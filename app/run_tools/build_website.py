@@ -64,7 +64,7 @@ class BuildWebsite(Task):
                 )
 
         for template, output_filename in (
-                ('about.jinja', 'about.html'),
+                #('about.jinja', 'about.html'),
                 ('contact.jinja', 'contact.html'),
                 ):
             yield BuildPage(
